@@ -3,11 +3,12 @@
  */
 
 function bureaucracy(n, bosses) {
-    const result = Array(n + 1).fill(0);
-    const count = Array(n + 1).fill(1);
+    const result = new Int32Array(n + 1).fill(1);
+    const count = new Int32Array(n + 1).fill(1);
     const vizited = new Int8Array(n + 1);
     const bossMap = new Map();
-    const stack = [];
+    const stack = new Int32Array(n + 1);
+    let pntStack = 0;
 
     bosses.forEach((boss, employee) => {
         if (!bossMap.has(boss)) {
@@ -16,31 +17,28 @@ function bureaucracy(n, bosses) {
         bossMap.get(boss).push(employee + 2);
     });
 
-    stack.push(1);
-    while (stack.length > 0) {
-        const current = stack.pop();
+    // stack.push(1);
+    stack[pntStack++] = 1;
+    while (pntStack > 0) {
+        const current = stack[--pntStack];
         if (vizited[current] > 0) {
             vizited[current] = 2;
-            // result[current] += 1;
             if (current - 2 >= 0 && bosses[current - 2]) {
-                result[bosses[current - 2]] += result[current] + count[current] + 1;
-                // count[bosses[current - 2]] += count[current];
-                // result[current] += 1;
-            } else {
-                // result[current] += 1;
+                count[bosses[current - 2]] += count[current];
+                result[bosses[current - 2]] += result[current] + count[current];
             }
         } else {
             vizited[current] = 1;
-            stack.push(current);
 
             if (bossMap.has(current)) {
-                bossMap.get(current).sort((a, b) => b - a);
-                stack.push(...bossMap.get(current));
+                stack[pntStack++] = current;
+                // stack.push(current);
+                // bossMap.get(current).sort((a, b) => b - a);
+                bossMap.get(current).forEach((v) => (stack[pntStack++] = v));
+                // stack.push(...bossMap.get(current));
             } else {
-                result[current] = 1;
-                // count[bosses[current - 2]] += 1;
-                result[bosses[current - 2]] += 1;
-                //leaf
+                count[bosses[current - 2]] += 1;
+                result[bosses[current - 2]] += 2;
             }
         }
     }
@@ -50,7 +48,7 @@ function bureaucracy(n, bosses) {
 const _readline = require("readline");
 
 const _reader = _readline.createInterface({
-    input: process.stdin,
+    input: process.stdin
 });
 
 const _inputLines = [];
