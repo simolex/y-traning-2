@@ -3,45 +3,22 @@
  */
 
 function bureaucracy(n, bosses) {
-    const result = new Int32Array(n + 1).fill(1);
-    const count = new Int32Array(n + 1).fill(1);
-    const vizited = new Int8Array(n + 1);
-    const bossMap = new Map();
-    const stack = new Int32Array(n + 1);
-    let pntStack = 0;
+    const result = Array(n + 1).fill(1);
+    const count = Array(n + 1).fill(1);
 
-    bosses.forEach((boss, employee) => {
-        if (!bossMap.has(boss)) {
-            bossMap.set(boss, []);
-        }
-        bossMap.get(boss).push(employee + 2);
-    });
+    let current;
+    for (let i = bosses.length - 1; i >= 0; i--) {
+        current = i + 2;
 
-    // stack.push(1);
-    stack[pntStack++] = 1;
-    while (pntStack > 0) {
-        const current = stack[--pntStack];
-        if (vizited[current] > 0) {
-            vizited[current] = 2;
-            if (current - 2 >= 0 && bosses[current - 2]) {
-                count[bosses[current - 2]] += count[current];
-                result[bosses[current - 2]] += result[current] + count[current];
-            }
-        } else {
-            vizited[current] = 1;
-
-            if (bossMap.has(current)) {
-                stack[pntStack++] = current;
-                // stack.push(current);
-                // bossMap.get(current).sort((a, b) => b - a);
-                bossMap.get(current).forEach((v) => (stack[pntStack++] = v));
-                // stack.push(...bossMap.get(current));
-            } else {
-                count[bosses[current - 2]] += 1;
-                result[bosses[current - 2]] += 2;
-            }
+        if (result[current] === 1) {
+            count[bosses[i]] += 1;
+            result[bosses[i]] += 2;
+        } else if (bosses[i]) {
+            count[bosses[i]] += count[current];
+            result[bosses[i]] += result[current] + count[current];
         }
     }
+
     return result.slice(1);
 }
 
