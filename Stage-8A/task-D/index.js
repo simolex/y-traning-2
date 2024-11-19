@@ -3,7 +3,8 @@
  */
 
 function bureaucracy(n, bosses) {
-    const result = Array(n + 1);
+    const result = Array(n + 1).fill(0);
+    const count = Array(n + 1).fill(1);
     const vizited = new Int8Array(n + 1);
     const bossMap = new Map();
     const stack = [];
@@ -15,17 +16,32 @@ function bureaucracy(n, bosses) {
         bossMap.get(boss).push(employee + 2);
     });
 
-    // console.log(bossMap);
     stack.push(1);
     while (stack.length > 0) {
         const current = stack.pop();
-        // точка возврата в стэк для подсчета.
-        if (bossMap.has(current)) {
-            bossMap.get(current).sort((a, b) => b - a);
-            stack.push(...bossMap.get(current));
+        if (vizited[current] > 0) {
+            vizited[current] = 2;
+            // result[current] += 1;
+            if (current - 2 >= 0 && bosses[current - 2]) {
+                result[bosses[current - 2]] += result[current] + count[current] + 1;
+                // count[bosses[current - 2]] += count[current];
+                // result[current] += 1;
+            } else {
+                // result[current] += 1;
+            }
         } else {
-            console.log("node>>", current);
-            //leaf
+            vizited[current] = 1;
+            stack.push(current);
+
+            if (bossMap.has(current)) {
+                bossMap.get(current).sort((a, b) => b - a);
+                stack.push(...bossMap.get(current));
+            } else {
+                result[current] = 1;
+                // count[bosses[current - 2]] += 1;
+                result[bosses[current - 2]] += 1;
+                //leaf
+            }
         }
     }
     return result.slice(1);
@@ -34,7 +50,7 @@ function bureaucracy(n, bosses) {
 const _readline = require("readline");
 
 const _reader = _readline.createInterface({
-    input: process.stdin
+    input: process.stdin,
 });
 
 const _inputLines = [];
